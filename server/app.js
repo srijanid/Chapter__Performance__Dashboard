@@ -30,6 +30,6 @@ app.locals.redis = redisClient;
 
 app.use("/api/v1/chapters", chapterRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
