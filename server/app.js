@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import connectDB from './db/database.js';
 const app = express();
 dotenv.config();
-import Redis from "ioredis";
 import cors from "cors";
 import morgan from "morgan";
 import rateLimiter from "./middlewares/rateLimiter.js";
@@ -24,9 +23,15 @@ app.get('/', (req, res) => {
   res.send('API is running');
 });
 
-const redisClient = process.env.REDIS_URI
-  ? new Redis(process.env.REDIS_URI)
-  : new Redis(6380, 'localhost');
+// Redis setup using redis package
+const redisClient = createClient({
+  url: process.env.REDIS_URI || 'redis://localhost:6380',
+});
+
+redisClient.on('error', (err) => console.error('Redis Client Error', err));
+
+await redisClient.connect(); 
+
 app.locals.redis = redisClient;
 
 
