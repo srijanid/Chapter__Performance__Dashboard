@@ -1,0 +1,46 @@
+
+name: dashboard
+
+services:
+  mongo:
+    container_name: mongodb
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - dashboard
+
+  redis:
+    container_name: redis
+    image: redis:7
+    ports:
+      - "6380:6379"
+    networks:
+      - dashboard
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    env_file:
+      - ./server/.env
+    container_name: chapter-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - dashboard
+    command: npm run dev
+
+volumes:
+  mongo-data:
+
+networks:
+  dashboard:
+    driver: bridge
