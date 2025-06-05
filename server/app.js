@@ -24,7 +24,9 @@ app.get('/', (req, res) => {
   res.send('API is running');
 });
 
-const redisClient = new Redis(process.env.REDIS_URI);
+const redisClient = process.env.REDIS_URI
+  ? new Redis(process.env.REDIS_URI)
+  : new Redis(6380, 'localhost');
 app.locals.redis = redisClient;
 
 
