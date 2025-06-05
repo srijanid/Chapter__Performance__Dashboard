@@ -8,6 +8,7 @@ import morgan from "morgan";
 import rateLimiter from "./middlewares/rateLimiter.js";
 import chapterRoutes from "./routes/chapterRoutes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { createClient } from 'redis';
 
 connectDB();
 
@@ -25,7 +26,8 @@ app.get('/', (req, res) => {
 
 // Redis setup using redis package
 const redisClient = createClient({
-  url: process.env.REDIS_URI || 'redis://localhost:6380',
+  legacyMode: true ,
+  url: process.env.REDIS_URI,
 });
 
 redisClient.on('error', (err) => console.error('Redis Client Error', err));

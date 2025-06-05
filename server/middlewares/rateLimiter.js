@@ -3,7 +3,7 @@ import RedisStore from "rate-limit-redis";
 import { createClient } from 'redis';
 
 const redisClient = createClient({
-  url: process.env.REDIS_URI || 'redis://localhost:6380',
+  url: 'redis://redis:6379',
 });
 
 redisClient.on('error', (err) => {
@@ -14,7 +14,7 @@ await redisClient.connect();
 
 const rateLimiter = rateLimit({
   store: new RedisStore({
-    sendCommand: (...args) => redisClient.call(...args),
+    sendCommand: (...args) => redisClient.sendCommand(args),
   }),
   windowMs: 60 * 1000,
   max: 30,
