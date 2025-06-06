@@ -9,7 +9,7 @@ export const getChapters = async (req, res) => {
 
     const cached = await getCache(redisClient, key);
     if (cached) {
-      return res.json(JSON.parse(cached));
+      return res.json(cached);
     }
 
     const { class: classFilter, unit, status, weakChapters, subject, page = 1, limit = 10 } = req.query;
