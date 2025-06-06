@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 // Redis setup using redis package
 const redisClient = createClient({
   legacyMode: true ,
-  url:'redis://redis:6379',
+  url:'redis://localhost:6379',
 });
 
 redisClient.on('error', (err) => console.error('Redis Client Error', err));
