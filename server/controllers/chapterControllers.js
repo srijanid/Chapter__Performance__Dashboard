@@ -1,12 +1,13 @@
 import Chapter from "../models/Chapter.js";
 import fs from "fs";
+import { getCache, setCache, deleteKeysByPattern } from "../utils/cache.js";
 
 export const getChapters = async (req, res) => {
   try {
     const redisClient = req.app.locals.redis;
     const key = `chapters:${JSON.stringify(req.query)}`;
 
-    const cached = await redisClient.get(key);
+    const cached = await getCache(redisClient, key);
     if (cached) {
       return res.json(JSON.parse(cached));
     }
@@ -77,9 +78,8 @@ export const uploadChapters = async (req, res) => {
 
     // Invalidate Redis chapter cache
     const redisClient = req.app.locals.redis;
-    const keys = await redisClient.keys("chapters:*");
-    if (keys.length > 0) await redisClient.del(keys);
-
+    const keys = await deleteKeysByPattern(redisClient, "chapters:*");
+    
     res.json({
       message: "Upload complete",
       successCount,

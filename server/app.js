@@ -8,14 +8,17 @@ import morgan from "morgan";
 import rateLimiter from "./middlewares/rateLimiter.js";
 import chapterRoutes from "./routes/chapterRoutes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
-import { createClient } from 'redis';
+import redisClient from './redisClient.js';
 
 connectDB();
+
+await redisClient.connect();
+app.locals.redis = redisClient;
 
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
-app.use(rateLimiter);
+app.use(rateLimiter(redisClient));
 app.use(errorHandler);
 
 const PORT = process.env.PORT ||3000;
@@ -23,18 +26,6 @@ const PORT = process.env.PORT ||3000;
 app.get('/', (req, res) => {
   res.send('API is running');
 });
-
-// Redis setup using redis package
-const redisClient = createClient({
-  legacyMode: true ,
-  url:'redis://localhost:6379',
-});
-
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-
-await redisClient.connect(); 
-
-app.locals.redis = redisClient;
 
 
 app.use("/api/v1/chapters", chapterRoutes);

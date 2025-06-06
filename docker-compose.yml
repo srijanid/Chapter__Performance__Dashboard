@@ -12,13 +12,14 @@ services:
     networks:
       - dashboard
 
-  redis:
+  redis-stack:
     container_name: redis
-    image: redis:7
+    image:  redis/redis-stack:latest
     ports:
-      - "6379:6379"
-    expose:
-      - 6379
+       - "6379:6379"
+       - "8001:8001"
+    volumes:
+    - redis-data:/data
     networks:
       - dashboard
   backend:
@@ -35,13 +36,14 @@ services:
       - /app/node_modules
     depends_on:
       - mongo
-      - redis
+      - redis-stack
     networks:
       - dashboard
     command: npm run dev
 
 volumes:
   mongo-data:
+  redis-data:
 
 networks:
   dashboard:

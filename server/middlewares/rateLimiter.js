@@ -1,26 +1,18 @@
-import rateLimit from "express-rate-limit";
-import RedisStore from "rate-limit-redis";
-import { createClient } from 'redis';
+import rateLimit from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
 
-const redisClient = createClient({
-  url: 'redis://localhost:6379',
-});
+const createRateLimiter = (redisClient) => {
+  return rateLimit({
+    store: new RedisStore({
+      sendCommand: (...args) => redisClient.sendCommand(args),
+    }),
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW || '60000', 10),
+    max: parseInt(process.env.RATE_LIMIT_MAX || '30', 10),
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Too many requests from this IP, please try again later",
+  });
+};
 
-redisClient.on('error', (err) => {
-  console.error('Redis Client Error:', err);
-});
+export default createRateLimiter;
 
-await redisClient.connect();
-
-const rateLimiter = rateLimit({
-  store: new RedisStore({
-    sendCommand: (...args) => redisClient.sendCommand(args),
-  }),
-  windowMs: 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: "Too many requests from this IP, please try again later",
-});
-
-export default rateLimiter;
